@@ -20,6 +20,11 @@ class Vector:
         else:
             return '%f,%f,%f' % (self.x, self.y, self.z)
 
+    def int(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
+        self.z = int(self.z)
+
     # method: sets vector values
     def set(self, x_=0, y_=0, z_=0):
         self.x = x_
@@ -64,6 +69,11 @@ class Vector:
         self.x = self.x + v.x
         self.y = self.y + v.y
         self.z = self.z + v.z
+
+    def add_xy(self, x_=0, y_=0, z_=0):
+        self.x += x_
+        self.y += y_
+        self.z += z_
 
     # static: vector addition
     # ex: vector = self + vect
