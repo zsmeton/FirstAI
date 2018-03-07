@@ -1,6 +1,6 @@
 # # Imports # #
 from GeneticAlgorithm import DNA, Vector, graphics
-
+import math
 
 class Rocket:
     def __init__(self, width_, height_, DNA_=None):
@@ -32,16 +32,16 @@ class Rocket:
             return False, False
         elif self.position.y >= self.height or self.position.y <= 0:
             return False, False
-        elif close < 30:
+        elif close < 20:
             self.hit_target = True
             return False, True
         else:
             return True, False
 
     def update_fitness(self):
-        temp = self.position - self.target
+        temp = self.position.dist(self.target)
         if self.hit_target:
-            a = 1
+            a = 10
         else:
             a = 0
-        self.fitness = (1 / temp.mag()) ** 20 + a
+        self.fitness = 10 - 10/(1 + math.exp(- 0.1 * (temp - 30))) + a
