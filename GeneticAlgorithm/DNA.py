@@ -30,8 +30,6 @@ class DNA:
         if random_:
             for x in np.nditer(self.matrix, op_flags=['readwrite']):
                 x[...] = random.uniform(0, TWO_PI)
-        self.rect_list = []
-        self._create_rect_list()
         dimensions = self.matrix.shape
         self.dimension_x = dimensions[0]
         self.dimension_x -= 1
@@ -55,19 +53,6 @@ class DNA:
             # draws the debug
             gfx.aacircle(screen, starting_point.x, starting_point.y, 2, (105, 105, 105))
             pygame.draw.aaline(screen, (105, 105, 105), (starting_point.x, starting_point.y), (end_point.x, end_point.y))
-        for rect in self.rect_list:
-            pygame.draw.rect(screen, (105, 105, 105), rect, 1)
-
-    # creates a collision rectangle for each vector
-    def _create_rect_list(self):
-        for index, value in np.ndenumerate(self.matrix):
-            starting_point = Vector.Vector(index[0], index[1])
-            starting_point.mult(amountOfVector)
-            starting_point.add_xy(amountOfVector / 2, amountOfVector / 2)
-            starting_point.int()
-            rect = pygame.Rect(starting_point.x, starting_point.y, amountOfVector, amountOfVector)
-            rect.center = [starting_point.x, starting_point.y]
-            self.rect_list.append(rect)
 
     # returns the vector effecting the object from the position
     def get_vector(self, position):
