@@ -32,6 +32,11 @@ class DNA:
                 x[...] = random.uniform(0, TWO_PI)
         self.rect_list = []
         self._create_rect_list()
+        dimensions = self.matrix.shape
+        self.dimension_x = dimensions[0]
+        self.dimension_x -= 1
+        self.dimension_y = dimensions[1]
+        self.dimension_y -= 1
 
     # displays the vectors and their range of effect
     def debug(self, screen):
@@ -66,17 +71,20 @@ class DNA:
 
     # returns the vector effecting the object from the position
     def get_vector(self, position):
-        x = position.x
-        y = position.y
-        for rect in self.rect_list:
-            if rect.collidepoint(x, y):
-                x, y = rect.center
-                x -= amountOfVector / 2
-                y -= amountOfVector / 2
-                x /= amountOfVector
-                y /= amountOfVector
-                temp = Vector.Vector.from_angle(self.matrix[int(x), int(y)])
-                return temp
+        x_ = position.x
+        y_ = position.y
+        x_ -= amountOfVector / 2
+        y_ -= amountOfVector / 2
+        x_ /= amountOfVector
+        y_ /= amountOfVector
+        x_ = round(x_)
+        y_ = round(y_)
+        while x_ > self.dimension_x:
+            x_ -= 1
+        while y_ > self.dimension_y:
+            y_ -= 1
+        temp = Vector.Vector.from_angle(self.matrix[int(x_), int(y_)])
+        return temp
 
     # crosses DNA of two individuals
     def cross_over(self, other, mutation_rate=0):
