@@ -33,7 +33,6 @@ class Rocket:
         elif self.position.y >= self.height or self.position.y <= 0:
             return False, False
         elif close < 30:
-            print(close)
             self.hit_target = True
             return False, True
         else:
@@ -42,7 +41,7 @@ class Rocket:
     def update_fitness(self):
         temp = self.position - self.target
         if self.hit_target:
-            a = 10
+            a = 1
         else:
             a = 0
         self.fitness = (1 / temp.mag()) ** 20 + a

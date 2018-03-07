@@ -88,7 +88,9 @@ while drawing:
     screen.fill(WHITE)
 
     population.draw(screen)
+
     target.draw()
+
     time_text = "Time: " + str(round(timer))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))
     screen.blit(time_draw, [10, 10])

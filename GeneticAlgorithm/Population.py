@@ -1,8 +1,6 @@
 # # Imports # #
 import random
-
 import pygame
-
 from GeneticAlgorithm import Rocket
 
 pygame.init()
@@ -31,11 +29,12 @@ class Population:
             if alive:
                 screen.blit(rocket.picture.image, rocket.picture.rect)
             elif not alive and hit:
-                print("----HIT----")
                 self.alive_population.remove(rocket)
                 self.breeding_population.append(rocket)
             else:
                 self.alive_population.remove(rocket)
+        for rocket in self.breeding_population:
+            screen.blit(rocket.picture.image, rocket.picture.rect)
 
     def best_object(self):
         self.alive_population[0].update_fitness()
@@ -85,6 +84,7 @@ class Population:
 
     def reproduction(self):
         # refill population with new generation
+        self.breeding_population = []
         self.alive_population = []
         self.population_objects = []
         for i in range(self.size):
