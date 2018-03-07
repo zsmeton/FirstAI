@@ -6,7 +6,7 @@
 
 import pygame
 
-from GeneticAlgorithm import DNA, Vector, Population, Graphics, Settings
+from GeneticAlgorithm import DNA, Vector, Population, Graphics, Settings, Objects
 
 # # Constants # #
 Settings.__init__()
@@ -17,17 +17,6 @@ screen = pygame.display.set_mode([Settings.width, Settings.height])
 pygame.display.set_caption("Genetic Path Finding")  # name of the window created
 clock = pygame.time.Clock()  # used to manage how fast the screen updates
 myfont = pygame.font.Font(None, 12)  # sets the font for text in pygame
-
-
-class Target:
-    def __init__(self):
-        self.position = Vector.Vector(Settings.width - 20, Settings.height / 2)
-        self.rect = pygame.Rect(self.position.x, self.position.y, 10, 10)
-        self.rect.center = [self.position.x, self.position.y]
-
-    def draw(self):
-        pygame.draw.rect(screen, (105, 105, 104), self.rect)
-
 
 # Game state
 setup = True
@@ -47,7 +36,7 @@ new_population = False
 population = Population.Population(100)
 
 # target
-target = Target()
+target = Objects.Target()
 
 while setup:
     population.create_population()
@@ -73,11 +62,11 @@ while drawing:
                 graph.draw()
 
     # Fills screen with white
-    screen.fill(WHITE)
+    screen.fill(Settings.WHITE)
 
     population.draw(screen)
 
-    target.draw()
+    target.draw(screen)
 
     time_text = "Time: " + str(round(timer))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))

@@ -1,7 +1,9 @@
 # # Imports # #
 from GeneticAlgorithm import DNA, Vector, Graphics, Settings
 import math
+import pygame
 
+# Main object which is being optimized
 class Rocket:
     def __init__(self, DNA_=None):
         self.position = Vector.Vector(10, 248)
@@ -43,3 +45,17 @@ class Rocket:
         else:
             a = 0
         self.fitness = 10 - 10/(1 + math.exp(- 0.1 * (temp - 30))) + a
+
+    def draw(self, screen):
+        screen.blit(self.picture.image, self.picture.rect)
+
+
+# Target for the rockets
+class Target:
+    def __init__(self):
+        self.position = Vector.Vector(Settings.width - 20, Settings.height / 2)
+        self.rect = pygame.Rect(self.position.x, self.position.y, 10, 10)
+        self.rect.center = [self.position.x, self.position.y]
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, (105, 105, 104), self.rect)

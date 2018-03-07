@@ -1,7 +1,7 @@
 # # Imports # #
 import random
 import pygame
-from GeneticAlgorithm import Rocket, Settings
+from GeneticAlgorithm import Objects, Settings
 
 pygame.init()
 random.seed()
@@ -19,7 +19,7 @@ class Population:
     # Creates a randomly generated first population
     def create_population(self):
         for pop in range(self.size):
-            temp_object = Rocket.Rocket(Settings.width, Settings.height)
+            temp_object = Objects.Rocket(Settings.width, Settings.height)
             self.population_objects.append(temp_object)
             self.alive_population.append(temp_object)
 
@@ -27,14 +27,14 @@ class Population:
         for rocket in self.alive_population:
             alive, hit = rocket.update()
             if alive:
-                screen.blit(rocket.picture.image, rocket.picture.rect)
+                rocket.draw(screen)
             elif not alive and hit:
                 self.alive_population.remove(rocket)
                 self.breeding_population.append(rocket)
             else:
                 self.alive_population.remove(rocket)
         for rocket in self.breeding_population:
-            screen.blit(rocket.picture.image, rocket.picture.rect)
+            rocket.draw(screen)
 
     def best_object(self):
         self.alive_population[0].update_fitness()
@@ -48,13 +48,8 @@ class Population:
         return best
 
     def best_fitness(self):
-        self.alive_population[0].update_fitness()
-        best_fitness = self.alive_population[0].fitness
-        for rocket in self.alive_population:
-            rocket.update_fitness()
-            if rocket.fitness > best_fitness:
-                best_fitness = rocket.fitness
-        return best_fitness
+        best_ob = self.best_object()
+        return best_ob.fitness
 
     def average(self):
         average_fitness = 0
@@ -91,6 +86,6 @@ class Population:
             mom_dna = mom.DNA
             dad_dna = dad.DNA
             child = mom_dna.cross_over(dad_dna)
-            child_rocket = Rocket.Rocket(child)
+            child_rocket = Objects.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)
