@@ -1,7 +1,7 @@
 # # Imports # #
 import random
 import pygame
-from GeneticAlgorithm import Objects, Settings
+from GeneticAlgorithm import Individuals, Settings
 
 pygame.init()
 random.seed()
@@ -19,20 +19,22 @@ class Population:
     # Creates a randomly generated first population
     def create_population(self):
         for pop in range(self.size):
-            temp_object = Objects.Rocket(Settings.width, Settings.height)
+            temp_object = Individuals.Rocket()
             self.population_objects.append(temp_object)
             self.alive_population.append(temp_object)
 
-    def draw(self, screen):
+    def update(self):
         for rocket in self.alive_population:
             alive, hit = rocket.update()
-            if alive:
-                rocket.draw(screen)
-            elif not alive and hit:
+            if not alive and hit:
                 self.alive_population.remove(rocket)
                 self.breeding_population.append(rocket)
-            else:
+            elif not alive:
                 self.alive_population.remove(rocket)
+
+    def draw(self, screen):
+        for rocket in self.alive_population:
+            rocket.draw(screen)
         for rocket in self.breeding_population:
             rocket.draw(screen)
 
@@ -86,6 +88,7 @@ class Population:
             mom_dna = mom.DNA
             dad_dna = dad.DNA
             child = mom_dna.cross_over(dad_dna)
-            child_rocket = Objects.Rocket(child)
+            child_rocket = Individuals.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)
+

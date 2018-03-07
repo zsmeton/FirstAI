@@ -3,10 +3,8 @@
 # Draws the current generation
 
 # # Import Libraries # #
-
 import pygame
-
-from GeneticAlgorithm import DNA, Vector, Population, Graphics, Settings, Objects
+from GeneticAlgorithm import Group, Graphics, Settings, Individuals, Target
 
 # # Constants # #
 Settings.__init__()
@@ -17,6 +15,7 @@ screen = pygame.display.set_mode([Settings.width, Settings.height])
 pygame.display.set_caption("Genetic Path Finding")  # name of the window created
 clock = pygame.time.Clock()  # used to manage how fast the screen updates
 myfont = pygame.font.Font(None, 12)  # sets the font for text in pygame
+
 
 # Game state
 setup = True
@@ -33,15 +32,16 @@ debug = False
 new_population = False
 
 # population
-population = Population.Population(100)
+population = Group.Population(100)
 
 # target
-target = Objects.Target()
+Target.__init__()
 
 while setup:
     population.create_population()
     setup = False
     continue
+
 
 while drawing:
     timer += 1
@@ -64,9 +64,10 @@ while drawing:
     # Fills screen with white
     screen.fill(Settings.WHITE)
 
+    population.update()
     population.draw(screen)
 
-    target.draw(screen)
+    Target.draw(screen)
 
     time_text = "Time: " + str(round(timer))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))
