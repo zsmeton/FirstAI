@@ -1,14 +1,12 @@
 # The DNA or instructions for each vehicle
 
-import math
 # # Import Libraries # #
+import math
 import random
-
 import numpy as np
 import pygame
 from pygame import gfxdraw as gfx
-
-from GeneticAlgorithm import Vector
+from GeneticAlgorithm import Vector, Settings
 
 # # Setup Pygame # #
 pygame.init()
@@ -23,10 +21,8 @@ random.seed()
 
 
 class DNA:
-    def __init__(self, width_, height_, random_=True):
-        self.width = width_
-        self.height = height_
-        self.matrix = np.zeros((math.floor(width_ / amountOfVector), math.floor(height_ / amountOfVector)))
+    def __init__(self, random_=True):
+        self.matrix = np.zeros((math.floor(Settings.width / amountOfVector), math.floor(Settings.height / amountOfVector)))
         if random_:
             for x in np.nditer(self.matrix, op_flags=['readwrite']):
                 x[...] = random.uniform(0, TWO_PI)
@@ -73,7 +69,7 @@ class DNA:
 
     # crosses DNA of two individuals
     def cross_over(self, other, mutation_rate=0):
-        new_dna = DNA(self.width, self.height)
+        new_dna = DNA()
         for index, value in np.ndenumerate(self.matrix):
             choice = random.randint(1, 6)
             if choice is 1 or choice is 3 or choice is 5:

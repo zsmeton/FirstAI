@@ -1,7 +1,7 @@
 # # Imports # #
 import random
 import pygame
-from GeneticAlgorithm import Rocket
+from GeneticAlgorithm import Rocket, Settings
 
 pygame.init()
 random.seed()
@@ -17,9 +17,9 @@ class Population:
         self.mutationRate = 0.1
 
     # Creates a randomly generated first population
-    def create_population(self, width_, height_):
+    def create_population(self):
         for pop in range(self.size):
-            temp_object = Rocket.Rocket(width_, height_)
+            temp_object = Rocket.Rocket(Settings.width, Settings.height)
             self.population_objects.append(temp_object)
             self.alive_population.append(temp_object)
 
@@ -50,12 +50,10 @@ class Population:
     def best_fitness(self):
         self.alive_population[0].update_fitness()
         best_fitness = self.alive_population[0].fitness
-        best = self.alive_population[0]
         for rocket in self.alive_population:
             rocket.update_fitness()
             if rocket.fitness > best_fitness:
                 best_fitness = rocket.fitness
-                best = rocket
         return best_fitness
 
     def average(self):
@@ -90,11 +88,9 @@ class Population:
         for i in range(self.size):
             mom = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             dad = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
-            width = mom.width
-            height = mom.width
             mom_dna = mom.DNA
             dad_dna = dad.DNA
             child = mom_dna.cross_over(dad_dna)
-            child_rocket = Rocket.Rocket(width, height, child)
+            child_rocket = Rocket.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)

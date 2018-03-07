@@ -1,18 +1,16 @@
 # # Imports # #
-from GeneticAlgorithm import DNA, Vector, graphics
+from GeneticAlgorithm import DNA, Vector, Graphics, Settings
 import math
 
 class Rocket:
-    def __init__(self, width_, height_, DNA_=None):
-        self.width = width_
-        self.height = height_
+    def __init__(self, DNA_=None):
         self.position = Vector.Vector(10, 248)
         self.velocity = Vector.Vector()
         self.acceleration = Vector.Vector()
-        self.DNA = DNA.DNA(width_, height_, random_=True)
+        self.DNA = DNA.DNA(random_=True)
         if DNA_ is not None:
             self.DNA = DNA_
-        self.picture = graphics.Image('rocket.png', [self.position.x, self.position.y])
+        self.picture = Graphics.Image('rocket.png', [self.position.x, self.position.y])
         self.fitness = 0
         self.target = Vector.Vector(972, 248)
         self.hit_target = False
@@ -28,9 +26,9 @@ class Rocket:
 
     def _collision(self):
         close = self.position.dist(self.target)
-        if self.position.x >= self.width or self.position.x <= 0:
+        if self.position.x >= Settings.width or self.position.x <= 0:
             return False, False
-        elif self.position.y >= self.height or self.position.y <= 0:
+        elif self.position.y >= Settings.height or self.position.y <= 0:
             return False, False
         elif close < 20:
             self.hit_target = True

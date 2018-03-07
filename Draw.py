@@ -6,26 +6,14 @@
 
 import pygame
 
-from GeneticAlgorithm import DNA, Vector, Population, graphics
+from GeneticAlgorithm import DNA, Vector, Population, Graphics, Settings
 
 # # Constants # #
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+Settings.__init__()
 
 # # Pygame Setup # #
 pygame.init()
-# The desired width and height
-desiredWidth = 1000
-desiredHeight = 500
-# actual width and height is calculated so that vector field covers entire screen
-multipleW = int(desiredWidth / DNA.amountOfVector)
-multipleH = int(desiredHeight / DNA.amountOfVector)
-width = multipleW * DNA.amountOfVector
-height = multipleH * DNA.amountOfVector
-print(width, height)
-screen = pygame.display.set_mode([width, height])
+screen = pygame.display.set_mode([Settings.width, Settings.height])
 pygame.display.set_caption("Genetic Path Finding")  # name of the window created
 clock = pygame.time.Clock()  # used to manage how fast the screen updates
 myfont = pygame.font.Font(None, 12)  # sets the font for text in pygame
@@ -33,7 +21,7 @@ myfont = pygame.font.Font(None, 12)  # sets the font for text in pygame
 
 class Target:
     def __init__(self):
-        self.position = Vector.Vector(width - 20, height / 2)
+        self.position = Vector.Vector(Settings.width - 20, Settings.height / 2)
         self.rect = pygame.Rect(self.position.x, self.position.y, 10, 10)
         self.rect.center = [self.position.x, self.position.y]
 
@@ -62,7 +50,7 @@ population = Population.Population(100)
 target = Target()
 
 while setup:
-    population.create_population(width, height)
+    population.create_population()
     setup = False
     continue
 
@@ -81,7 +69,7 @@ while drawing:
             elif event.key == pygame.K_r:
                 new_population = True
             elif event.key == pygame.K_g:
-                graph = graphics.Graph(generation, fitness)
+                graph = Graphics.Graph(generation, fitness)
                 graph.draw()
 
     # Fills screen with white
