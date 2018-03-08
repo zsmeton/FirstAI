@@ -18,6 +18,7 @@ TWO_PI = 2 * math.pi
 amountOfVector = 16
 
 random.seed()
+np.random.seed()
 
 
 class DNA:
@@ -38,13 +39,13 @@ class DNA:
             starting_point = Vector.Vector(index[0], index[1])
             starting_point.mult(amountOfVector)
             # offsets center so the range of effect is at the corner
-            starting_point.add_xy(amountOfVector / 2, amountOfVector / 2)
+            starting_point.add(x_=amountOfVector / 2, y_=amountOfVector / 2)
             starting_point.int()
             # creates vector using the matrix of the dna
-            end_point = Vector.Vector.from_angle(value)
+            end_point = Vector.Vector.from_angle(angle=value)
             end_point.normalize()
             end_point.mult(7)
-            end_point.add(starting_point)
+            end_point.add(other=starting_point)
             end_point.int()
             # draws the debug
             gfx.aacircle(screen, starting_point.x, starting_point.y, 2, (105, 105, 105))
@@ -70,12 +71,22 @@ class DNA:
     # crosses DNA of two individuals
     def cross_over(self, other, mutation_rate=0):
         new_dna = DNA()
-        for index, value in np.ndenumerate(self.matrix):
-            choice = random.randint(1, 6)
-            if choice is 1 or choice is 3 or choice is 5:
-                new_dna.matrix[index[0], index[1]] = other.matrix[index[0], index[1]]
-            elif choice is 2 or choice is 4:
-                new_dna.matrix[index[0], index[1]] = value
+        kid = np.nditer(new_dna.matrix, flags=['f_index'], op_flags=['writeonly'])
+        mom = np.nditer(self.matrix, flags=['f_index'])
+        dad = np.nditer(other.matrix, flags=['f_index'])
+        while not mom.finished:
+            if Settings.random_list[mom.index] < mutation_rate * 10:
+                kid[0] = random.uniform(0, TWO_PI)
             else:
-                new_dna.matrix[index[0], index[1]] = random.uniform(0, TWO_PI)
+                # 2 options which switch every 6
+                parent = math.floor(mom.index/6) % 2
+                if parent is 0:
+                    kid[0] = mom[0]
+                elif parent is 1:
+                    kid[0] = dad[0]
+                else:
+                    print("error")
+            kid.iternext()
+            mom.iternext()
+            dad.iternext()
         return new_dna

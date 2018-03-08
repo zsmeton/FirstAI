@@ -1,7 +1,7 @@
 # # Imports # #
 import random
 import pygame
-from GeneticAlgorithm import Individuals, Settings
+from GeneticAlgorithm import Individuals, Target
 
 pygame.init()
 random.seed()
@@ -15,6 +15,9 @@ class Population:
         self.breeding_population = []
         self.mating_pool = []
         self.mutationRate = 0.1
+        self.best_object = None
+        self.best_fitness = 0
+        self.average_fitness = 0
 
     # Creates a randomly generated first population
     def create_population(self):
@@ -38,44 +41,28 @@ class Population:
         for rocket in self.breeding_population:
             rocket.draw(screen)
 
-    def best_object(self):
-        self.alive_population[0].update_fitness()
-        best_fitness = self.alive_population[0].fitness
-        best = self.alive_population[0]
-        for rocket in self.alive_population:
-            rocket.update_fitness()
-            if rocket.fitness > best_fitness:
-                best_fitness = rocket.fitness
-                print(best_fitness)
-                best = rocket
-        return best
-
-    def best_fitness(self):
-        best_ob = self.best_object()
-        print(best_ob.fitness)
-        return best_ob.fitness
-
-    def average(self):
-        average_fitness = 0
-        for rocket in self.alive_population:
-            rocket.update_fitness()
-            average_fitness += rocket.fitness
-        average_fitness /= len(self.alive_population)
-        return average_fitness
-
     def debug(self, screen):
-        best = self.best_object()
-        pygame.draw.circle(screen, (105, 105, 250), (int(best.position.x), int(best.position.y)), 5, 1)
-        pygame.draw.circle(screen, (105, 105, 250), (int(best.target.x), int(best.target.y)), 5, 1)
-        best.DNA.debug(screen)
+        self.calculate_fitness()
+        pygame.draw.circle(screen, (105, 105, 250), (int(self.best_object.position.x), int(self.best_object.position.y)), 5, 1)
+        pygame.draw.circle(screen, (105, 105, 250), (int(Target.position.x), int(Target.position.y)), 5, 1)
+        self.best_object.DNA.debug(screen)
+
+    def calculate_fitness(self):
+        self.best_fitness = 0
+        for rocket in self.population_objects:
+            rocket.update_fitness()
+            self.average_fitness += rocket.fitness
+            if rocket.fitness > self.best_fitness:
+                self.best_fitness = rocket.fitness
+                self.best_object = rocket
+        self.average_fitness /= len(self.population_objects)
+        return self.average_fitness
 
     def selection(self):
         self.alive_population += self.breeding_population
         self.mating_pool = []
-        best_fitness = self.best_fitness()
-        print(best_fitness)
         for rocket in self.alive_population:
-            fitness = rocket.fitness / best_fitness
+            fitness = rocket.fitness / self.best_fitness
             number_in_pool = fitness * 100
             for i in range(int(number_in_pool)):
                 self.mating_pool.append(rocket)
@@ -90,7 +77,7 @@ class Population:
             dad = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             mom_dna = mom.DNA
             dad_dna = dad.DNA
-            child = mom_dna.cross_over(dad_dna)
+            child = mom_dna.cross_over(dad_dna, mutation_rate=0.02)
             child_rocket = Individuals.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)

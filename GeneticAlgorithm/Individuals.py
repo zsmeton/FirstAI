@@ -1,23 +1,21 @@
 # # Imports # #
-from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target
-from GeneticAlgorithm.Vector import Vector
 import math
-import pygame
+from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target
 
 
 # Main object which is being optimized
-# Creates it as a pygame sprite
-class Rocket():
+class Rocket:
     def __init__(self, DNA_=None):
-        self.position = Vector(10, Settings.height/2)
-        self.velocity = Vector()
-        self.acceleration = Vector()
+        self.position = Vector.Vector(10, Settings.height/2)
+        self.velocity = Vector.Vector()
+        self.acceleration = Vector.Vector()
         self.DNA = DNA.DNA(random_=True)
         if DNA_ is not None:
             self.DNA = DNA_
         self.picture = Graphics.Image('rocket.png', [self.position.x, self.position.y])
         self.fitness = 0
         self.hit_target = False
+        self.hit_time = 900
 
     def update(self):
         self.acceleration = self.DNA.get_vector(position=self.position)
@@ -35,6 +33,7 @@ class Rocket():
         elif self.position.y >= Settings.height or self.position.y <= 0:
             return False, False
         elif distance is 1:
+            self.hit_time = Settings.time
             self.hit_target = True
             return False, True
         else:
@@ -43,10 +42,11 @@ class Rocket():
     def update_fitness(self):
         temp = Target.is_reached(self)
         if self.hit_target:
-            a = 10
+            a = 50
         else:
-            a = 0
-        self.fitness = 10 - 10 / (1 + math.exp(- 0.1 * (temp - 30))) + a
+            a = 1
+        self.fitness = a*(1/temp) + 1/self.hit_time
+        #self.fitness = 10 - 10 / (1 + math.exp(- 0.1 * (temp - 30))) + a
 
     def draw(self, screen):
         screen.blit(self.picture.image, self.picture.rect)

@@ -6,6 +6,7 @@ import math
 
 class Vector:
     """Data type for vectors in 2-3 dimensions"""
+
     def __init__(self, x_=0, y_=0, z_=0):
         """Arguments: x value, y value, z value (default = 0)"""
         self.x = x_
@@ -82,7 +83,7 @@ class Vector:
 
     # method: vector addition
     # ex: self.add(vector)
-    def add(self, x_=0,y_=0,z_=0, other=None):
+    def add(self, x_=0, y_=0, z_=0, other=None):
         """Adds each component to the Vector
             Keyword Arguments:
             Either:

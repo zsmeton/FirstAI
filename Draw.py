@@ -22,7 +22,6 @@ setup = True
 drawing = True
 
 # statistics
-timer = 0
 generation = 1
 average_fitness = 0
 fitness = []
@@ -44,7 +43,7 @@ while setup:
 
 
 while drawing:
-    timer += 1
+    Settings.timer()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -69,32 +68,31 @@ while drawing:
 
     Target.draw(screen)
 
-    time_text = "Time: " + str(round(timer))
+    time_text = "Time: " + str(round(Settings.time))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))
     screen.blit(time_draw, [10, 10])
     time_text = "Generation: " + str(round(generation))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))
     screen.blit(time_draw, [10, 22])
-    average_fitness = population.average()
-    time_text = "Average Fitness: " + str(average_fitness)
-    time_draw = myfont.render(time_text, 1, (0, 0, 0))
-    screen.blit(time_draw, [10, 34])
 
     # if debug is active show the vector field of the best rocket
     if debug:
         population.debug(screen)
-    if timer > 600:
+
+    if Settings.time > 800:
         new_population = True
 
     if new_population:
-        average_fitness = population.average()
-        fitness.append(average_fitness)
+        Settings.new_rand()
+        population.calculate_fitness()
+        print(population.best_fitness)
+        fitness.append(population.average_fitness)
         population.selection()
         population.reproduction()
-        new_population = False
-        timer = 0
+        Settings.timer(reset=True)
         generation += 1
         print(fitness[-1])
+        new_population = False
 
     # Draws everything
     pygame.display.flip()

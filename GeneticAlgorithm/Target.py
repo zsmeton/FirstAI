@@ -5,11 +5,13 @@ from GeneticAlgorithm import Vector, Settings
 position = None
 rect = None
 
+
 def __init__():
     global position, rect
     position = Vector.Vector(Settings.width - 20, Settings.height / 2)
     rect = pygame.Rect(position.x, position.y, 10, 10)
     rect.center = [position.x, position.y]
+
 
 def draw(screen):
     pygame.draw.rect(screen, (105, 105, 105), rect)
