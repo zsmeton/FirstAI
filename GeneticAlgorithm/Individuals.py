@@ -9,7 +9,7 @@ import pygame
 # Creates it as a pygame sprite
 class Rocket():
     def __init__(self, DNA_=None):
-        self.position = Vector(10, 248)
+        self.position = Vector(10, Settings.height/2)
         self.velocity = Vector()
         self.acceleration = Vector()
         self.DNA = DNA.DNA(random_=True)
@@ -20,11 +20,11 @@ class Rocket():
         self.hit_target = False
 
     def update(self):
-        self.acceleration = self.DNA.get_vector(self.position)
+        self.acceleration = self.DNA.get_vector(position=self.position)
         if self.acceleration:
             self.acceleration.mult(0.01)
-            self.velocity.add(self.acceleration)
-            self.position.add(self.velocity)
+            self.velocity.add(other=self.acceleration)
+            self.position.add(other=self.velocity)
             self.picture.rect.center = [self.position.x, self.position.y]
         return self._collision()
 

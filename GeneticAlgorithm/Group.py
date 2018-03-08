@@ -46,11 +46,13 @@ class Population:
             rocket.update_fitness()
             if rocket.fitness > best_fitness:
                 best_fitness = rocket.fitness
+                print(best_fitness)
                 best = rocket
         return best
 
     def best_fitness(self):
         best_ob = self.best_object()
+        print(best_ob.fitness)
         return best_ob.fitness
 
     def average(self):
@@ -71,6 +73,7 @@ class Population:
         self.alive_population += self.breeding_population
         self.mating_pool = []
         best_fitness = self.best_fitness()
+        print(best_fitness)
         for rocket in self.alive_population:
             fitness = rocket.fitness / best_fitness
             number_in_pool = fitness * 100
