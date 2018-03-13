@@ -1,15 +1,17 @@
 # Object file for Target namespace
 import pygame
+
 from GeneticAlgorithm import Vector, Settings
 
 position = None
 rect = None
+size = 10
 
 
 def __init__():
     global position, rect
     position = Vector.Vector(Settings.width - 20, Settings.height / 2)
-    rect = pygame.Rect(position.x, position.y, 10, 10)
+    rect = pygame.Rect(position.x, position.y, size, size)
     rect.center = [position.x, position.y]
 
 

@@ -1,6 +1,7 @@
 # # Imports # #
-import math
-from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target
+from scipy.special import expit
+
+from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target, Statist
 
 
 # Main object which is being optimized
@@ -15,7 +16,10 @@ class Rocket:
         self.picture = Graphics.Image('rocket.png', [self.position.x, self.position.y])
         self.fitness = 0
         self.hit_target = False
-        self.hit_time = 900
+        self.hit_time = Settings.max_time
+        self.time_fitness = 0
+        self.dist = Settings.width
+        self.dist_fitness = 0
 
     def update(self):
         self.acceleration = self.DNA.get_vector(position=self.position)
@@ -40,13 +44,21 @@ class Rocket:
             return True, False
 
     def update_fitness(self):
-        temp = Target.is_reached(self)
+        self.dist = Target.is_reached(self)
         if self.hit_target:
-            a = 50
+            a = 2
         else:
             a = 1
-        self.fitness = a*(1/temp) + 1/self.hit_time
-        #self.fitness = 10 - 10 / (1 + math.exp(- 0.1 * (temp - 30))) + a
+        # map time to same value as distance
+        time = Statist.variable_mapping(self.hit_time, Settings.min_time, Settings.max_time, Target.size, Settings.width)
+        # find the fitness of each using inverse
+        # Source : https://gamedev.stackexchange.com/questions/17620/equation-to-make-small-number-big-and-big-number-small-gravity
+        self.dist_fitness = (300 / (self.dist + .1))
+        self.time_fitness = (300 / (time + .1))
+        # use prioritized fitness algorithm
+        # Source : https://geekyisawesome.blogspot.com/2013/06/fitness-function-for-multi-objective.html
+        # print("Fitness of Dist: %.2f\t Time: %.2f" % (self.dist_fitness, self.time_fitness))
+        self.fitness = a * (self.dist_fitness + expit(self.time_fitness))
 
     def draw(self, screen):
         screen.blit(self.picture.image, self.picture.rect)

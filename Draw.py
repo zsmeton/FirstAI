@@ -4,7 +4,8 @@
 
 # # Import Libraries # #
 import pygame
-from GeneticAlgorithm import Group, Graphics, Settings, Individuals, Target
+
+from GeneticAlgorithm import Group, Settings, Statist, Target
 
 # # Constants # #
 Settings.__init__()
@@ -24,7 +25,6 @@ drawing = True
 # statistics
 generation = 1
 average_fitness = 0
-fitness = []
 
 # # Drawing Options # #
 debug = False
@@ -46,10 +46,22 @@ while drawing:
     Settings.timer()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            # Before the simulation exists exits
+            # run stats
+            Statist.run_stats(generation, population)
+            Statist.generate_graph(generation)
+            # save stats to a file
+            pygame.quit()
+            quit(0)
             pygame.quit()
         elif event.type == pygame.KEYUP:
             # exits code
             if event.key == pygame.K_ESCAPE:
+                # Before the simulation exists exits
+                # run stats
+                Statist.run_stats(generation, population)
+                Statist.generate_graph(generation)
+                # save stats to a file
                 pygame.quit()
                 quit(0)
             elif event.key == pygame.K_d:
@@ -57,8 +69,7 @@ while drawing:
             elif event.key == pygame.K_r:
                 new_population = True
             elif event.key == pygame.K_g:
-                graph = Graphics.Graph(generation, fitness)
-                graph.draw()
+                Statist.generate_graph(generation)
 
     # Fills screen with white
     screen.fill(Settings.WHITE)
@@ -79,19 +90,17 @@ while drawing:
     if debug:
         population.debug(screen)
 
-    if Settings.time > 800:
+    if Settings.time > Settings.max_time:
         new_population = True
 
     if new_population:
         Settings.new_rand()
         population.calculate_fitness()
-        print(population.best_fitness)
-        fitness.append(population.average_fitness)
+        Statist.run_stats(generation, population)
         population.selection()
         population.reproduction()
         Settings.timer(reset=True)
         generation += 1
-        print(fitness[-1])
         new_population = False
 
     # Draws everything

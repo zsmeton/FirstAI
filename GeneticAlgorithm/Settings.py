@@ -1,7 +1,7 @@
 # # Settings for the program can be set and called from here # #
 import numpy as np
-from GeneticAlgorithm import DNA
 
+from GeneticAlgorithm import DNA
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -11,6 +11,8 @@ width = 0
 height = 0
 random_list = None
 time = 0
+max_time = 800
+min_time = 680
 
 def __init__():
     global width, height, random_list
