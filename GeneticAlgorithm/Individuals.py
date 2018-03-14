@@ -7,7 +7,7 @@ from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target, Statist
 # Main object which is being optimized
 class Rocket:
     def __init__(self, DNA_=None):
-        self.position = Vector.Vector(10, Settings.height/2)
+        self.position = Vector.Vector(10, Settings.height / 2)
         self.velocity = Vector.Vector()
         self.acceleration = Vector.Vector()
         self.DNA = DNA.DNA(DNA_)
@@ -50,7 +50,8 @@ class Rocket:
         else:
             a = 1
         # map time to same value as distance
-        time = Statist.variable_mapping(self.hit_time, Settings.min_time, Settings.max_time, Target.size, Settings.width)
+        time = Statist.variable_mapping(self.hit_time, Settings.min_time, Settings.max_time, Target.size,
+                                        Settings.width)
         # find the fitness of each using inverse
         # Source : https://gamedev.stackexchange.com/questions/17620/equation-to-make-small-number-big-and-big-number-small-gravity
         self.dist_fitness = (300 / (self.dist + .1))
@@ -63,6 +64,10 @@ class Rocket:
     def draw(self, screen):
         screen.blit(self.picture.image, self.picture.rect)
 
+
 class Obstacle:
-    def __init__(self, x, y):
-        self.rect = pygame.Rect()
+    def __init__(self, topleft, bottomright):
+        self.rect = pygame.Rect(0, 0, 0, 0)
+        self.rect.topleft = topleft
+        self.rect.bottomright = bottomright
+
