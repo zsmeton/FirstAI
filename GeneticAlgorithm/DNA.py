@@ -15,18 +15,20 @@ pygame.init()
 TWO_PI = 2 * math.pi
 
 # how large the range of effect is of each vector
-amountOfVector = 16
+amountOfVector = 15
 
 random.seed()
 np.random.seed()
 
 
 class DNA:
-    def __init__(self, random_=True):
+    def __init__(self, other=None):
         self.matrix = np.zeros((math.floor(Settings.width / amountOfVector), math.floor(Settings.height / amountOfVector)))
-        if random_:
+        if other is None:
             for x in np.nditer(self.matrix, op_flags=['readwrite']):
                 x[...] = random.uniform(0, TWO_PI)
+        else:
+            self.matrix = other
         dimensions = self.matrix.shape
         self.dimension_x = dimensions[0]
         self.dimension_x -= 1
@@ -49,7 +51,8 @@ class DNA:
             end_point.int()
             # draws the debug
             gfx.aacircle(screen, starting_point.x, starting_point.y, 2, (105, 105, 105))
-            pygame.draw.aaline(screen, (105, 105, 105), (starting_point.x, starting_point.y), (end_point.x, end_point.y))
+            pygame.draw.aaline(screen, (105, 105, 105), (starting_point.x, starting_point.y),
+                               (end_point.x, end_point.y))
 
     # returns the vector effecting the object from the position
     def get_vector(self, position):
@@ -70,20 +73,21 @@ class DNA:
 
     # crosses DNA of two individuals
     def cross_over(self, other, mutation_rate=0):
-        new_dna = DNA()
-        kid = np.nditer(new_dna.matrix, flags=['f_index'], op_flags=['writeonly'])
-        mom = np.nditer(self.matrix, flags=['f_index'])
-        dad = np.nditer(other.matrix, flags=['f_index'])
+        new_dna = np.zeros((math.floor(Settings.width / amountOfVector), math.floor(Settings.height / amountOfVector)))
+        kid = np.nditer(new_dna, flags=['c_index'], op_flags=['writeonly'])
+        mom = np.nditer(self.matrix, flags=['c_index'])
+        dad = np.nditer(other.matrix, flags=['c_index'])
+
         while not mom.finished:
-            if Settings.random_list[mom.index] < mutation_rate * 10:
+            if random.uniform(0, 1) < mutation_rate:
                 kid[0] = random.uniform(0, TWO_PI)
             else:
                 # 2 options which switch every 6
-                parent = math.floor(mom.index/6) % 2
+                parent = math.floor(mom.index / 6) % 2
                 if parent is 0:
-                    kid[0] = mom[0]
+                    kid[0] = mom.value
                 elif parent is 1:
-                    kid[0] = dad[0]
+                    kid[0] = dad.value
                 else:
                     print("error")
             kid.iternext()

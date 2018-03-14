@@ -49,7 +49,8 @@ class Population:
 
     def calculate_fitness(self):
         self.best_fitness = 0
-        for rocket in self.population_objects:
+        fit_objects = self.alive_population + self.breeding_population
+        for rocket in fit_objects:
             rocket.update_fitness()
             self.average_fitness += rocket.fitness
             if rocket.fitness > self.best_fitness:
@@ -59,13 +60,15 @@ class Population:
         return self.average_fitness
 
     def selection(self):
-        self.alive_population += self.breeding_population
+        self.alive_population.extend(self.breeding_population)
         self.mating_pool = []
         for rocket in self.alive_population:
             fitness = rocket.fitness / self.best_fitness
             number_in_pool = fitness * 100
-            for i in range(int(number_in_pool)):
+            for i in range(int(round(number_in_pool))):
                 self.mating_pool.append(rocket)
+
+        print(self.mating_pool.count(self.best_object)/len(self.mating_pool))
 
     def reproduction(self):
         # refill population with new generation
@@ -77,7 +80,7 @@ class Population:
             dad = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             mom_dna = mom.DNA
             dad_dna = dad.DNA
-            child = mom_dna.cross_over(dad_dna, mutation_rate=0.02)
+            child = mom_dna.cross_over(dad_dna, mutation_rate=0.05)
             child_rocket = Individuals.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)

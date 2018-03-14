@@ -1,5 +1,6 @@
 # # Settings for the program can be set and called from here # #
 import numpy as np
+import os
 
 from GeneticAlgorithm import DNA
 
@@ -12,10 +13,11 @@ height = 0
 random_list = None
 time = 0
 max_time = 800
-min_time = 680
+min_time = max_time
+
 
 def __init__():
-    global width, height, random_list
+    global width, height, random_list, min_time
     # # Constants # #
     # CHANGE ONLY THESE TWO WIDTH/HEIGHT VALUES
     desired_width = 1000
@@ -25,8 +27,20 @@ def __init__():
     multiple_h = int(desired_height / DNA.amountOfVector)
     width = multiple_w * DNA.amountOfVector
     height = multiple_h * DNA.amountOfVector
-    random_list = 10 * np.random.random((100000,))
     print(width, height)
+    with open('stats.txt','r+') as file:
+        contents = file.read()
+        if contents.isdecimal():
+            min_time = float(contents)
+        else:
+            print("ERROR: CANNOT READ STATS.TXT")
+
+
+def new_min(value):
+    global min_time
+    min_time = value
+    with open('stats.txt', 'w+') as file:
+        file.write(str(min_time))
 
 
 def new_rand():
@@ -40,3 +54,4 @@ def timer(reset=False):
         time = 0
     else:
         time += 1
+

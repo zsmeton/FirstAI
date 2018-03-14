@@ -1,6 +1,6 @@
 # # Imports # #
 from scipy.special import expit
-
+import pygame
 from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target, Statist
 
 
@@ -10,9 +10,7 @@ class Rocket:
         self.position = Vector.Vector(10, Settings.height/2)
         self.velocity = Vector.Vector()
         self.acceleration = Vector.Vector()
-        self.DNA = DNA.DNA(random_=True)
-        if DNA_ is not None:
-            self.DNA = DNA_
+        self.DNA = DNA.DNA(DNA_)
         self.picture = Graphics.Image('rocket.png', [self.position.x, self.position.y])
         self.fitness = 0
         self.hit_target = False
@@ -47,6 +45,8 @@ class Rocket:
         self.dist = Target.is_reached(self)
         if self.hit_target:
             a = 2
+            if self.hit_time < Settings.min_time:
+                Settings.new_min(self.hit_time)
         else:
             a = 1
         # map time to same value as distance
@@ -58,9 +58,11 @@ class Rocket:
         # use prioritized fitness algorithm
         # Source : https://geekyisawesome.blogspot.com/2013/06/fitness-function-for-multi-objective.html
         # print("Fitness of Dist: %.2f\t Time: %.2f" % (self.dist_fitness, self.time_fitness))
-        self.fitness = a * (self.dist_fitness + expit(self.time_fitness))
+        self.fitness = a * (self.dist_fitness * expit(self.time_fitness))
 
     def draw(self, screen):
         screen.blit(self.picture.image, self.picture.rect)
 
-
+class Obstacle:
+    def __init__(self, x, y):
+        self.rect = pygame.Rect()

@@ -47,10 +47,10 @@ while drawing:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             # Before the simulation exists exits
-            # run stats
+            # run stats.txt
             Statist.run_stats(generation, population)
             Statist.generate_graph(generation)
-            # save stats to a file
+            # save stats.txt to a file
             pygame.quit()
             quit(0)
             pygame.quit()
@@ -58,17 +58,16 @@ while drawing:
             # exits code
             if event.key == pygame.K_ESCAPE:
                 # Before the simulation exists exits
-                # run stats
+                # run stats.txt
                 Statist.run_stats(generation, population)
                 Statist.generate_graph(generation)
-                # save stats to a file
+                # save stats.txt to a file
                 pygame.quit()
                 quit(0)
             elif event.key == pygame.K_d:
                 debug = not debug
-            elif event.key == pygame.K_r:
-                new_population = True
             elif event.key == pygame.K_g:
+                Statist.run_stats(generation, population)
                 Statist.generate_graph(generation)
 
     # Fills screen with white
