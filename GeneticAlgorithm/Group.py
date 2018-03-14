@@ -1,7 +1,9 @@
 # # Imports # #
 import random
+
 import pygame
-from GeneticAlgorithm import Individuals, Target
+
+from GeneticAlgorithm import Individuals, Target, Vector
 
 pygame.init()
 random.seed()
@@ -26,9 +28,9 @@ class Population:
             self.population_objects.append(temp_object)
             self.alive_population.append(temp_object)
 
-    def update(self):
+    def update(self, current_obstacles):
         for rocket in self.alive_population:
-            alive, hit = rocket.update()
+            alive, hit = rocket.update(current_obstacles)
             if not alive and hit:
                 self.alive_population.remove(rocket)
                 self.breeding_population.append(rocket)
@@ -36,9 +38,7 @@ class Population:
                 self.alive_population.remove(rocket)
 
     def draw(self, screen):
-        for rocket in self.alive_population:
-            rocket.draw(screen)
-        for rocket in self.breeding_population:
+        for rocket in self.population_objects:
             rocket.draw(screen)
 
     def debug(self, screen):
@@ -49,8 +49,7 @@ class Population:
 
     def calculate_fitness(self):
         self.best_fitness = 0
-        fit_objects = self.alive_population + self.breeding_population
-        for rocket in fit_objects:
+        for rocket in self.population_objects:
             rocket.update_fitness()
             self.average_fitness += rocket.fitness
             if rocket.fitness > self.best_fitness:
@@ -60,9 +59,8 @@ class Population:
         return self.average_fitness
 
     def selection(self):
-        self.alive_population.extend(self.breeding_population)
         self.mating_pool = []
-        for rocket in self.alive_population:
+        for rocket in self.population_objects:
             fitness = rocket.fitness / self.best_fitness
             number_in_pool = fitness * 100
             for i in range(int(round(number_in_pool))):
@@ -80,8 +78,56 @@ class Population:
             dad = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             mom_dna = mom.DNA
             dad_dna = dad.DNA
-            child = mom_dna.cross_over(dad_dna, mutation_rate=0.05)
+            child = mom_dna.cross_over(dad_dna, mutation_rate=0.02)
             child_rocket = Individuals.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)
 
+
+class Obstacles:
+    def __init__(self):
+        self.obstacle_list = []
+        self.obstacle_chosen = False
+        self.dragging = False
+        self.current_corner = Vector.Vector()
+        self.drag_object = None
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.obstacle_chosen = False
+            print("I gotta click")
+            for obstacle in self.obstacle_list:
+                if obstacle.handle_event(event):
+                    self.obstacle_list.remove(obstacle)
+                    self.obstacle_chosen = True
+                    self.dragging = False
+            if not self.obstacle_chosen:
+                if not self.dragging:
+                    print("Im gonna build  ")
+                    x, y = event.pos
+                    self.current_corner.set(x_=x, y_=y)
+                    self.dragging = True
+                else:
+                    x, y = event.pos
+                    new_corner = Vector.Vector(x_=x, y_=y)
+                    if new_corner.dist(self.current_corner) <= 20:
+                        self.dragging = False
+                        self.obstacle_chosen = False
+                    else:
+                        self.dragging = False
+                        new = Individuals.Obstacle(topleft=self.current_corner, bottomright=new_corner)
+                        self.obstacle_list.append(new)
+
+    def draw(self, screen):
+        if self.dragging and not self.obstacle_chosen:
+            x, y = pygame.mouse.get_pos()
+            temp = Vector.Vector(x, y)
+            self.drag_object = Individuals.Obstacle(self.current_corner, temp)
+            self.drag_object.draw(screen, (200, 200, 200))
+        for obstacle in self.obstacle_list:
+            obstacle.draw(screen)
+
+    def collide(self, other):
+        for obstacle in self.obstacle_list:
+            if obstacle.collide(other):
+                return True

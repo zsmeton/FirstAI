@@ -1,6 +1,5 @@
 # # Settings for the program can be set and called from here # #
 import numpy as np
-import os
 
 from GeneticAlgorithm import DNA
 
@@ -12,7 +11,7 @@ width = 0
 height = 0
 random_list = None
 time = 0
-max_time = 800
+max_time = 2000
 min_time = max_time
 
 

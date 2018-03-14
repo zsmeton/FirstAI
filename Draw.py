@@ -2,6 +2,8 @@
 # Sets up population
 # Draws the current generation
 
+import random
+
 # # Import Libraries # #
 import pygame
 
@@ -29,9 +31,12 @@ average_fitness = 0
 # # Drawing Options # #
 debug = False
 new_population = False
+draw = True
+fast_forward = False
 
 # population
 population = Group.Population(100)
+obstacles = Group.Obstacles()
 
 # target
 Target.__init__()
@@ -45,6 +50,8 @@ while setup:
 while drawing:
     Settings.timer()
     for event in pygame.event.get():
+        if draw:
+            obstacles.handle_event(event)
         if event.type == pygame.QUIT:
             # Before the simulation exists exits
             # run stats.txt
@@ -64,23 +71,40 @@ while drawing:
                 # save stats.txt to a file
                 pygame.quit()
                 quit(0)
-            elif event.key == pygame.K_d:
+            elif event.key == pygame.K_z:
                 debug = not debug
+                draw = False
+            elif event.key == pygame.K_d:
+                draw = not draw
+                fast_forward = False
+            elif event.key == pygame.K_f:
+                fast_forward = not fast_forward
+                draw = False
             elif event.key == pygame.K_g:
                 Statist.run_stats(generation, population)
                 Statist.generate_graph(generation)
 
-    # Fills screen with white
-    screen.fill(Settings.WHITE)
+    population.update(obstacles)
 
-    population.update()
-    population.draw(screen)
+    if fast_forward:
+        if random.randint(0, 20) is 1:
+            # Fills screen with white
+            screen.fill(Settings.WHITE)
+            population.draw(screen)
+            obstacles.draw(screen)
+            Target.draw(screen)
+            time_text = "Time: " + str(round(Settings.time))
+            time_draw = myfont.render(time_text, 1, (0, 0, 0))
+            screen.blit(time_draw, [10, 10])
+    else:
+        screen.fill(Settings.WHITE)
+        population.draw(screen)
+        obstacles.draw(screen)
+        Target.draw(screen)
+        time_text = "Time: " + str(round(Settings.time))
+        time_draw = myfont.render(time_text, 1, (0, 0, 0))
+        screen.blit(time_draw, [10, 10])
 
-    Target.draw(screen)
-
-    time_text = "Time: " + str(round(Settings.time))
-    time_draw = myfont.render(time_text, 1, (0, 0, 0))
-    screen.blit(time_draw, [10, 10])
     time_text = "Generation: " + str(round(generation))
     time_draw = myfont.render(time_text, 1, (0, 0, 0))
     screen.blit(time_draw, [10, 22])
@@ -104,6 +128,10 @@ while drawing:
 
     # Draws everything
     pygame.display.flip()
-    clock.tick(6000)
+
+    if draw:
+        clock.tick(20)
+    else:
+        clock.tick(2000000)
 
 pygame.quit()
