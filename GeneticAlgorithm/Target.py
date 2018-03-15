@@ -16,7 +16,7 @@ def __init__():
 
 
 def draw(screen):
-    pygame.draw.rect(screen, (105, 105, 105), rect)
+    pygame.draw.rect(screen, (105, 200, 105), rect)
 
 
 def is_reached(other):

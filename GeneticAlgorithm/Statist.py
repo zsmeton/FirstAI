@@ -22,7 +22,6 @@ class Graph:
         fig, ax = plt.subplots()
         plt.xlabel('Generations')
         for i, plot in enumerate(self.labels):
-            print(self.x_values, self.y_values[i])
             ax.scatter(self.x_values, self.y_values[i], label=str(plot))
         ax.legend()
         ax.grid(True)
