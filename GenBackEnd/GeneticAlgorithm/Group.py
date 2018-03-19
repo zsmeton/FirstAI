@@ -3,7 +3,7 @@ import random
 
 import pygame
 
-from GeneticAlgorithm import Individuals, Target, Vector
+from GenBackEnd.GeneticAlgorithm import Vector, Individuals, Target
 
 pygame.init()
 random.seed()
@@ -89,9 +89,10 @@ class Obstacles:
         self.drag_object = None
 
     def handle_event(self, event):
+        for obstacle in self.obstacle_list:
+            obstacle.handle_event(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.obstacle_chosen = False
-            print("I gotta click")
             for obstacle in self.obstacle_list:
                 if obstacle.handle_event(event):
                     self.obstacle_list.remove(obstacle)
@@ -99,7 +100,6 @@ class Obstacles:
                     self.dragging = False
             if not self.obstacle_chosen:
                 if not self.dragging:
-                    print("Im gonna build  ")
                     x, y = event.pos
                     self.current_corner.set(x_=x, y_=y)
                     self.dragging = True

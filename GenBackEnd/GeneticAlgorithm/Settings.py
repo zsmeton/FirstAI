@@ -1,5 +1,5 @@
 # # Settings for the program can be set and called from here # #
-from GeneticAlgorithm import DNA
+from GenBackEnd.GeneticAlgorithm import DNA
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

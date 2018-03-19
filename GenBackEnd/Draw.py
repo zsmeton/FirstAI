@@ -7,7 +7,7 @@ import random
 # # Import Libraries # #
 import pygame
 
-from GeneticAlgorithm import Group, Settings, Statist, Target
+from GenBackEnd.GeneticAlgorithm import Group, Settings, Statist, Target
 
 # # Constants # #
 Settings.__init__()
@@ -97,7 +97,7 @@ while drawing:
     population.update(obstacles)
 
     if fast_forward:
-        if random.randint(0, 20) is 1:
+        if random.randint(0, 200) is 1:
             draw_screen()
     else:
         draw_screen()

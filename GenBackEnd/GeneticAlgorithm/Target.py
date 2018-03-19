@@ -1,7 +1,7 @@
 # Object file for Target namespace
 import pygame
 
-from GeneticAlgorithm import Vector, Settings
+from GenBackEnd.GeneticAlgorithm import Vector, Settings
 
 position = None
 rect = None

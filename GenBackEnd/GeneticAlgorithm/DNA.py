@@ -6,7 +6,7 @@ import random
 import numpy as np
 import pygame
 from pygame import gfxdraw as gfx
-from GeneticAlgorithm import Vector, Settings
+from GenBackEnd.GeneticAlgorithm import Vector, Settings
 
 # # Setup Pygame # #
 pygame.init()
@@ -23,7 +23,8 @@ np.random.seed()
 
 class DNA:
     def __init__(self, other=None):
-        self.matrix = np.zeros((math.floor(Settings.width / amountOfVector), math.floor(Settings.height / amountOfVector)))
+        self.matrix = np.zeros((math.floor(Settings.width / amountOfVector), math.floor(
+            Settings.height / amountOfVector)))
         if other is None:
             for x in np.nditer(self.matrix, op_flags=['readwrite']):
                 x[...] = random.uniform(0, TWO_PI)

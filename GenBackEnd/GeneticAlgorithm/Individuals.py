@@ -1,7 +1,7 @@
 # # Imports # #
 import pygame
 
-from GeneticAlgorithm import DNA, Vector, Graphics, Settings, Target, Statist
+from GenBackEnd.GeneticAlgorithm import Graphics, Vector, DNA, Settings, Statist, Target
 
 
 # Main object which is being optimized
