@@ -82,6 +82,8 @@ class Obstacle:
         width_hieght = bottomright - topleft
         width, height = width_hieght.x, width_hieght.y
         self.rect = pygame.Rect(topleft.x, topleft.y, width, height)
+        self.color = (105, 105, 105)
+        self.hover = False
         if width < 0:
             width = topleft.x - bottomright.x
             self.rect.width = width
@@ -92,12 +94,24 @@ class Obstacle:
             self.rect.top = topleft.y - height
 
     def handle_event(self, event):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            print(pygame.mouse.get_pos())
+            if not self.hover:
+                print('setting to hover color')
+                self.color = (145, 105, 105)
+                self.hover = True
+        else:
+            self.color = (105, 105, 105)
+            self.hover = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 return True
 
-    def draw(self, screen, color=(105, 105, 105)):
-        pygame.draw.rect(screen, color, self.rect)
+    def draw(self, screen, color=None):
+        if color is not None:
+            pygame.draw.rect(screen, color, self.rect)
+        else:
+            pygame.draw.rect(screen, self.color, self.rect)
 
     def collide(self, other):
         if self.rect.colliderect(other.rect):
