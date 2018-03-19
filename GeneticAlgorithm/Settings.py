@@ -1,6 +1,4 @@
 # # Settings for the program can be set and called from here # #
-import numpy as np
-
 from GeneticAlgorithm import DNA
 
 BLACK = (0, 0, 0)
@@ -27,7 +25,7 @@ def __init__():
     width = multiple_w * DNA.amountOfVector
     height = multiple_h * DNA.amountOfVector
     print(width, height)
-    with open('stats.txt','r+') as file:
+    with open('stats.txt', 'r+') as file:
         contents = file.read()
         if contents.isdecimal():
             min_time = float(contents)
@@ -40,11 +38,6 @@ def new_min(value):
     min_time = value
     with open('stats.txt', 'w+') as file:
         file.write(str(min_time))
-
-
-def new_rand():
-    global random_list
-    random_list = 10 * np.random.random((100000,))
 
 
 def timer(reset=False):

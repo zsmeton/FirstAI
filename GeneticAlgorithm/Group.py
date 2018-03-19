@@ -14,7 +14,6 @@ class Population:
         self.size = size_
         self.population_objects = []
         self.alive_population = []
-        self.breeding_population = []
         self.mating_pool = []
         self.mutationRate = 0.1
         self.best_object = None
@@ -24,17 +23,15 @@ class Population:
     # Creates a randomly generated first population
     def create_population(self):
         for pop in range(self.size):
-            temp_object = Individuals.Rocket()
-            self.population_objects.append(temp_object)
-            self.alive_population.append(temp_object)
+            current_rocket = Individuals.Rocket()
+            self.population_objects.append(current_rocket)
+            self.alive_population.append(current_rocket)
 
     def update(self, current_obstacles):
         for rocket in self.alive_population:
-            alive, hit = rocket.update(current_obstacles)
-            if not alive and hit:
-                self.alive_population.remove(rocket)
-                self.breeding_population.append(rocket)
-            elif not alive:
+            rocket.update()
+            rocket.collision(current_obstacles)
+            if not rocket.alive:
                 self.alive_population.remove(rocket)
 
     def draw(self, screen):
@@ -49,6 +46,7 @@ class Population:
 
     def calculate_fitness(self):
         self.best_fitness = 0
+        self.average_fitness = 0
         for rocket in self.population_objects:
             rocket.update_fitness()
             self.average_fitness += rocket.fitness
@@ -59,26 +57,24 @@ class Population:
         return self.average_fitness
 
     def selection(self):
-        self.mating_pool = []
+        self.mating_pool.clear()
         for rocket in self.population_objects:
             fitness = rocket.fitness / self.best_fitness
             number_in_pool = fitness * 100
             for i in range(int(round(number_in_pool))):
                 self.mating_pool.append(rocket)
-
         print(self.mating_pool.count(self.best_object)/len(self.mating_pool))
 
     def reproduction(self):
         # refill population with new generation
-        self.breeding_population = []
-        self.alive_population = []
-        self.population_objects = []
+        self.alive_population.clear()
+        self.population_objects.clear()
         for i in range(self.size):
             mom = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             dad = self.mating_pool[random.randint(0, len(self.mating_pool) - 1)]
             mom_dna = mom.DNA
             dad_dna = dad.DNA
-            child = mom_dna.cross_over(dad_dna, mutation_rate=0.02)
+            child = mom_dna.cross_over(dad_dna, mutation_rate=0.035)
             child_rocket = Individuals.Rocket(child)
             self.population_objects.append(child_rocket)
             self.alive_population.append(child_rocket)
