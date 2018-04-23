@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 import pygame
-import math
+
 from PyZ import GameGraphics as gg
 
 pygame.init()
@@ -17,41 +19,52 @@ class NeuralNetwork:
                 hidden_layers: (int) the number of hidden node layers
                 output_nodes: (int) the amount of possible decisions the layer can make
         """
+        # Class members:
+        # num_input_nodes
+        # num_hidden_nodes
+        # num_hidden_layers
+        # num_output_nodes
+        # weights = [[num_hidden_nodes, num_input_nodes],[num_hidden_nodes, num_hidden_nodes],[]<- for each hl,
+        # [num_output_nodes, num_hidden_nodes]]
+        # biases
+
         self.num_input_nodes = input_nodes
         self.num_hidden_nodes = hidden_nodes
         self.num_hidden_layers = hidden_layers
         self.num_output_nodes = output_nodes
+
         self.weights = []
         for i in range(self.num_hidden_layers + 1):
             if i is 0:
                 # first weights array is input to hidden
-                self.weights.append(np.random.rand(self.num_hidden_nodes, self.num_input_nodes))
+                self.weights.append(2 * np.random.rand(self.num_hidden_nodes, self.num_input_nodes) - 1)
 
             elif i < self.num_hidden_layers:
-                # next weight array is between the hidden nodes
-                self.weights.append(np.random.rand(self.num_hidden_nodes, self.num_hidden_nodes))
+                # next weight array is hidden nodes to hidden nodes
+                self.weights.append(2 * np.random.rand(self.num_hidden_nodes, self.num_hidden_nodes) - 1)
             else:
-                # last weight array is between hidden nodes and output
-                self.weights.append(np.random.rand(self.num_output_nodes, self.num_hidden_nodes))
+                # last weight array is hidden nodes to output nodes
+                self.weights.append(2 * np.random.rand(self.num_output_nodes, self.num_hidden_nodes) - 1)
 
         self.biases = []
         for i in range(self.num_hidden_layers + 1):
             if i < self.num_hidden_layers:
                 # for every hidden node there is a bias
-                self.biases.append(np.random.rand(self.num_hidden_nodes))
+                self.biases.append(2 * np.random.rand(self.num_hidden_nodes) - 1)
             else:
                 # for the output node there is a bias as well
-                self.biases.append(np.random.rand(self.num_output_nodes))
-        self.mapSig = np.vectorize(self.sigmoid, otypes=[float])
+                self.biases.append(2 * np.random.rand(self.num_output_nodes) - 1)
+
+        self.activation = np.vectorize(self.tanh, otypes=[float])
 
     @staticmethod
-    def sigmoid(value):
-        return 1/(1+math.exp(-value))
+    def tanh(value):
+        return (1 - math.exp(-2 * value)) / (1 + math.exp(-2 * value))
 
     def node_output(self, inputs, weights, biases):
         node_output = weights.dot(inputs)
         node_output = np.add(node_output, biases)
-        node_output = self.mapSig(node_output)
+        node_output = self.activation(node_output)
         return node_output
 
     def feed_forward(self, inputs):
@@ -75,7 +88,6 @@ class NeuralNetwork:
             weights_t.append(np.transpose(weight))
         for weight in weights_t:
             hidden_errors = weight.dot(error)
-        
 
     def node_pos(self, spacing, type, layer, node):
         """Returns the x and y position of the node
@@ -153,21 +165,21 @@ class NeuralNetwork:
             for inp in range(self.num_input_nodes):
                 for node in range(self.num_hidden_nodes):
                     weight = self.weights[0][node][inp]
-                    color = gg.color_gradient(weight, (255, 255, 255), (0, 0, 255))
+                    color = gg.color_gradient(weight)
                     pygame.draw.aaline(screen, color, self.node_pos(spacing, 'input', 1, inp),
                                        self.node_pos(spacing, 'hidden', 0, node))
             for layer in range(0, self.num_hidden_layers-1):
                 for node in range(self.num_hidden_nodes):
                     for other in range(self.num_hidden_nodes):
                         weight = self.weights[layer+1][other][node]
-                        color = gg.color_gradient(weight, (255, 255, 255), (0, 0, 255))
+                        color = gg.color_gradient(weight)
                         pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer, node),
                                            self.node_pos(spacing, 'hidden', layer + 1, other))
             for node in range(self.num_hidden_nodes):
                 for out in range(self.num_output_nodes):
                     layer = self.num_hidden_layers
                     weight = self.weights[layer][out][node]
-                    color = gg.color_gradient(weight, (255, 255, 255), (0, 0, 255))
+                    color = gg.color_gradient(weight)
                     pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer-1, node),
                                        self.node_pos(spacing, 'output', 1, out))
 
@@ -177,9 +189,7 @@ class NeuralNetwork:
 
 if __name__ == '__main__':
     print('DEBUGGING:')
-    a = NeuralNetwork(input_nodes=2, hidden_nodes=2, hidden_layers=1, output_nodes=1)
-    inputs = [1, 0]
-    target = [1]
-    a.train(inputs, target)
-    a.feed_forward([9, 3])
+    a = NeuralNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
+    data = [1, 0, .2, .3]
+    a.feed_forward(data)
     a.draw()

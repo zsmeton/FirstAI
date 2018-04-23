@@ -22,15 +22,22 @@ def draw_circle(surface, color, pos, radius, aa=False):
 
 
 # Source : http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
-def color_gradient(value, start=(255,255,255), end=(0,0,0)):
+def color_gradient(value, start=(255, 0, 0), middle=(255, 255, 255), end=(0, 0, 255)):
     """Returns a tuple of the RGB values of the point on a gradient
         Arguments:
-            value: A float between 0 and 1 which will mapped onto a gradient
+            value: A float between -1 and 1 which will mapped onto a gradient
             start: the low color of the gradient (default red)
+            middle: the color of 0 (default white)
             end: the high color of the gradient (default blue)
     """
-    a_r, a_g, a_b = start
-    b_r, b_g, b_b = end
+
+    if value > 0:
+        a_r, a_g, a_b = middle
+        b_r, b_g, b_b = end
+    else:
+        value = abs(value)
+        a_r, a_g, a_b = middle
+        b_r, b_g, b_b = start
 
     red = round((b_r - a_r) * value + a_r)
     green = round((b_g - a_g) * value + a_g)
