@@ -187,9 +187,21 @@ class NeuralNetwork:
             clock.tick(20)
 
 
+class GeneticNetwork(NeuralNetwork):
+    def __init__(self, input_nodes, hidden_nodes, hidden_layers, output_nodes):
+        """A neural network class which uses a genetic algorithm for training
+           Arguments:
+                input_nodes: (int) number of inputs into the network
+                hidden_nodes: (int) number of hidden nodes to do the calculations
+                hidden_layers: (int) the number of hidden node layers
+                output_nodes: (int) the amount of possible decisions the layer can make
+        """
+        super().__init__(input_nodes, hidden_nodes, hidden_layers, output_nodes)
+
+
 if __name__ == '__main__':
     print('DEBUGGING:')
-    a = NeuralNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
+    a = GeneticNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
     data = [1, 1, .2, .3]
     a.feed_forward(data)
     a.draw()
