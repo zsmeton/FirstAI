@@ -190,6 +190,6 @@ class NeuralNetwork:
 if __name__ == '__main__':
     print('DEBUGGING:')
     a = NeuralNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
-    data = [1, 0, .2, .3]
+    data = [1, 1, .2, .3]
     a.feed_forward(data)
     a.draw()
