@@ -1,4 +1,5 @@
 import math
+import random
 
 import numpy as np
 import pygame
@@ -140,7 +141,7 @@ class NeuralNetwork:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    return
             screen.fill((255, 255, 255))
 
             h_percentile = height - spacing
@@ -198,10 +199,63 @@ class GeneticNetwork(NeuralNetwork):
         """
         super().__init__(input_nodes, hidden_nodes, hidden_layers, output_nodes)
 
+    def cross_over(self, other, mutation_rate=0):
+        new = GeneticNetwork(self.num_input_nodes, self.num_hidden_nodes, self.num_hidden_layers, self.num_output_nodes)
+
+        for new_layer, self_layer, other_layer in zip(new.weights, self.weights, other.weights):
+            kid = np.nditer(new_layer, flags=['c_index'], op_flags=['writeonly'])
+            mom = np.nditer(self_layer, flags=['c_index'])
+            dad = np.nditer(other_layer, flags=['c_index'])
+            while not mom.finished:
+                if random.uniform(0, 1) < mutation_rate:
+                    kid[0] = random.uniform(-1, 1)
+                else:
+                    parent = math.floor(mom.index / 1) % 2
+                    if parent is 0:
+                        print(kid[0])
+                        kid[0] = mom.value
+                        print(kid[0])
+                    elif parent is 1:
+                        print(kid[0])
+                        kid[0] = dad.value
+                        print(kid[0])
+                    else:
+                        print("error")
+                kid.iternext()
+                mom.iternext()
+                dad.iternext()
+
+        for new_layer, self_layer, other_layer in zip(new.biases, self.biases, other.biases):
+            kid = np.nditer(new_layer, flags=['c_index'], op_flags=['writeonly'])
+            mom = np.nditer(self_layer, flags=['c_index'])
+            dad = np.nditer(other_layer, flags=['c_index'])
+            while not mom.finished:
+                if random.uniform(0, 1) < mutation_rate:
+                    kid[0] = random.uniform(-1, 1)
+                else:
+                    parent = math.floor(mom.index / 1) % 2
+                    if parent is 0:
+                        print(kid[0])
+                        kid[0] = mom.value
+                        print(kid[0])
+                    elif parent is 1:
+                        print(kid[0])
+                        kid[0] = dad.value
+                        print(kid[0])
+                    else:
+                        print("error")
+                kid.iternext()
+                mom.iternext()
+                dad.iternext()
+
+        return new
+
 
 if __name__ == '__main__':
     print('DEBUGGING:')
     a = GeneticNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
-    data = [1, 1, .2, .3]
-    a.feed_forward(data)
+    b = GeneticNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
+    c = a.cross_over(b)
     a.draw()
+    b.draw()
+    c.draw()
