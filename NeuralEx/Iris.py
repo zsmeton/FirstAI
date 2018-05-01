@@ -43,7 +43,8 @@ with open("iris.csv", "r") as input_file:
         else:
             print("AHHH What the fucking hell is this bullshit")
 
-nn = Neural.NeuralNetwork(input_nodes=4, hidden_nodes=4, hidden_layers=2, output_nodes=3)
+nn = Neural.NeuralNetwork(input_nodes=4, hidden_nodes=8, hidden_layers=4, output_nodes=3)
+nn.draw()
 
 for i in range(100):
     index = random.randint(0, 149)

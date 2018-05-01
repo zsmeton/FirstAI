@@ -84,7 +84,7 @@ class NeuralNetwork:
         outputs.append(self._node_output(inputs, self.weights[0], self.biases[0]))
         # get hidden to hidden / hidden to output
         for layer in range(1, self.num_hidden_layers - 1):
-            outputs.append(self._node_output(outputs[layer], self.weights[layer], self.biases[layer]))
+            outputs.append(self._node_output(outputs[layer - 1], self.weights[layer], self.biases[layer]))
         outputs.append(self._node_output(outputs[-1], self.weights[-1], self.biases[-1]))
         # calculate error, gradient, delta, adjust weights, repeat
 
@@ -98,7 +98,8 @@ class NeuralNetwork:
         deltas = np.multiply(gradients, np.transpose(outputs[-1]))
         np.add(self.weights[-1], np.transpose(deltas))
         np.add(self.biases[-1], gradients)
-        for layer in range(self.num_hidden_layers - 2, 0, -1):
+        for layer in range(self.num_hidden_layers - 2, -1, -1):
+            print(layer)
             # Possible Bug: use output error not hidden layer for all
             errors = np.multiply(np.transpose(self.weights[layer]), errors)
             gradients = np.subtract(1, np.power(outputs[layer], 2))
