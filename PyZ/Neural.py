@@ -33,6 +33,7 @@ class NeuralNetwork:
         self.num_hidden_nodes = hidden_nodes
         self.num_hidden_layers = hidden_layers
         self.num_output_nodes = output_nodes
+        self.learning_rate = 0.01
 
         self.weights = []
         for i in range(self.num_hidden_layers + 1):
@@ -60,36 +61,54 @@ class NeuralNetwork:
 
     @staticmethod
     def tanh(value):
-        return (1 - math.exp(-2 * value)) / (1 + math.exp(-2 * value))
+        return (math.exp(2 * value) - 1) / (math.exp(2 * value) + 1)
 
-    def node_output(self, inputs, weights, biases):
-        node_output = weights.dot(inputs)
+    def _node_output(self, inputs, weights, biases):
+        node_output = np.dot(weights, inputs)
         node_output = np.add(node_output, biases)
         node_output = self.activation(node_output)
         return node_output
 
-    def feed_forward(self, inputs):
+    def feedforward(self, inputs):
         """Returns the output of the neural network given an input"""
-        hidden_output = self.node_output(inputs, self.weights[0], self.biases[0])
-        print(hidden_output)
-        for layer in range(1, self.num_hidden_layers-1):
-            hidden_output = self.node_output(hidden_output, self.weights[layer], self.biases[layer])
-            print(hidden_output)
-
-        hidden_output = self.node_output(hidden_output, self.weights[-1], self.biases[-1])
-        print(hidden_output)
+        hidden_output = self._node_output(inputs, self.weights[0], self.biases[0])
+        for layer in range(1, self.num_hidden_layers - 1):
+            hidden_output = self._node_output(hidden_output, self.weights[layer], self.biases[layer])
+        hidden_output = self._node_output(hidden_output, self.weights[-1], self.biases[-1])
         return hidden_output
 
     def train(self, inputs, answers):
-        output = self.feed_forward(inputs)
-        error = np.subtract(answers, output)
-        weights_t = []
-        hidden_errors = []
-        for weight in self.weights:
-            weights_t.append(np.transpose(weight))
-        for weight in weights_t:
-            hidden_errors = weight.dot(error)
+        # feed forward
+        outputs = []
+        # get input to hidden output
+        outputs.append(self._node_output(inputs, self.weights[0], self.biases[0]))
+        # get hidden to hidden / hidden to output
+        for layer in range(1, self.num_hidden_layers - 1):
+            outputs.append(self._node_output(outputs[layer], self.weights[layer], self.biases[layer]))
+        outputs.append(self._node_output(outputs[-1], self.weights[-1], self.biases[-1]))
+        # calculate error, gradient, delta, adjust weights, repeat
 
+        # hidden <- output
+        # Possible Bug: Not multiplying errors by weights
+        errors = np.subtract(answers, outputs[-1])
+        errors = np.multiply(np.transpose(self.weights[-1]), errors)
+        gradients = np.subtract(1, np.power(outputs[-1], 2))
+        gradients = np.multiply(gradients, errors)
+        gradients = np.multiply(gradients, self.learning_rate)
+        deltas = np.multiply(gradients, np.transpose(outputs[-1]))
+        np.add(self.weights[-1], np.transpose(deltas))
+        np.add(self.biases[-1], gradients)
+        for layer in range(self.num_hidden_layers - 2, 0, -1):
+            # Possible Bug: use output error not hidden layer for all
+            errors = np.multiply(np.transpose(self.weights[layer]), errors)
+            gradients = np.subtract(1, np.power(outputs[layer], 2))
+            gradients = np.multiply(gradients, errors)
+            gradients = np.multiply(gradients, self.learning_rate)
+            deltas = np.multiply(gradients, np.transpose(outputs[layer]))
+            np.add(self.weights[layer], deltas)
+            np.add(self.biases[layer], gradients)
+
+    # Drawing functions
     def node_pos(self, spacing, type, layer, node):
         """Returns the x and y position of the node
             Arguments:
@@ -169,10 +188,10 @@ class NeuralNetwork:
                     color = gg.color_gradient(weight)
                     pygame.draw.aaline(screen, color, self.node_pos(spacing, 'input', 1, inp),
                                        self.node_pos(spacing, 'hidden', 0, node))
-            for layer in range(0, self.num_hidden_layers-1):
+            for layer in range(0, self.num_hidden_layers - 1):
                 for node in range(self.num_hidden_nodes):
                     for other in range(self.num_hidden_nodes):
-                        weight = self.weights[layer+1][other][node]
+                        weight = self.weights[layer + 1][other][node]
                         color = gg.color_gradient(weight)
                         pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer, node),
                                            self.node_pos(spacing, 'hidden', layer + 1, other))
@@ -181,7 +200,7 @@ class NeuralNetwork:
                     layer = self.num_hidden_layers
                     weight = self.weights[layer][out][node]
                     color = gg.color_gradient(weight)
-                    pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer-1, node),
+                    pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer - 1, node),
                                        self.node_pos(spacing, 'output', 1, out))
 
             pygame.display.flip()
@@ -252,10 +271,45 @@ class GeneticNetwork(NeuralNetwork):
 
 
 if __name__ == '__main__':
-    print('DEBUGGING:')
-    a = GeneticNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
-    b = GeneticNetwork(input_nodes=4, hidden_nodes=3, hidden_layers=2, output_nodes=1)
-    c = a.cross_over(b)
-    a.draw()
-    b.draw()
-    c.draw()
+    print(NeuralNetwork.tanh(0))
+
+    print('Testing Using XOR Problem:')
+    xor = NeuralNetwork(input_nodes=2, hidden_nodes=2, hidden_layers=1, output_nodes=1)
+    xor.draw()
+    inputee = [[1, 1], [1, 0], [0, 1], [0, 0]]
+    target = [0, 1, 1, 0, ]
+
+    width = 400
+    height = 400
+    pygame.init()
+    screen = pygame.display.set_mode([width, height])
+    drawing = True
+    while drawing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit(0)
+
+        screen.fill((255, 255, 255))
+
+        for i in range(5000):
+            index = random.randint(0, 3)
+            print("Iteration", i, ":", end="\t")
+            print("Input:", inputee[index], "Target:", target[index], end="\t")
+            xor.train(inputee[index], target[index])
+
+        resolution = 10
+        cols = math.floor(width / resolution)
+        rows = math.floor(height / resolution)
+
+        for i in range(cols):
+            for j in range(rows):
+                x = i * resolution
+                y = j * resolution
+                input_1 = i / (cols - 1)
+                input_2 = j / (rows - 1)
+                output = xor.feedforward([input_1, input_2])
+                col = math.fabs(output[0]) * 255
+                square = pygame.Rect(x, y, resolution, resolution)
+                pygame.draw.rect(screen, [col, col, col], square)
+        pygame.display.flip()
