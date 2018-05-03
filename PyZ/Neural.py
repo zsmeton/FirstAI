@@ -33,35 +33,38 @@ class NeuralNetwork:
         self.num_hidden_nodes = hidden_nodes
         self.num_hidden_layers = hidden_layers
         self.num_output_nodes = output_nodes
-        self.learning_rate = 0.01
 
         self.weights = []
         for i in range(self.num_hidden_layers + 1):
             if i is 0:
                 # first weights array is input to hidden
-                self.weights.append(2 * np.random.rand(self.num_hidden_nodes, self.num_input_nodes) - 1)
+                self.weights.append(.5 * np.random.rand(self.num_hidden_nodes, self.num_input_nodes) - .25)
 
             elif i < self.num_hidden_layers:
                 # next weight array is hidden nodes to hidden nodes
-                self.weights.append(2 * np.random.rand(self.num_hidden_nodes, self.num_hidden_nodes) - 1)
+                self.weights.append(.5 * np.random.rand(self.num_hidden_nodes, self.num_hidden_nodes) - .25)
             else:
                 # last weight array is hidden nodes to output nodes
-                self.weights.append(2 * np.random.rand(self.num_output_nodes, self.num_hidden_nodes) - 1)
+                self.weights.append(.5 * np.random.rand(self.num_output_nodes, self.num_hidden_nodes) - .25)
 
         self.biases = []
         for i in range(self.num_hidden_layers + 1):
             if i < self.num_hidden_layers:
                 # for every hidden node there is a bias
-                self.biases.append(2 * np.random.rand(self.num_hidden_nodes) - 1)
+                self.biases.append(0.5 * np.random.rand(self.num_hidden_nodes) - .25)
             else:
                 # for the output node there is a bias as well
-                self.biases.append(2 * np.random.rand(self.num_output_nodes) - 1)
+                self.biases.append(0.5 * np.random.rand(self.num_output_nodes) - .25)
 
         self.activation = np.vectorize(self.tanh, otypes=[float])
 
-    @staticmethod
-    def tanh(value):
-        return (math.exp(2 * value) - 1) / (math.exp(2 * value) + 1)
+    def tanh(self, value):
+        try:
+            return (math.exp(2 * value) - 1) / (math.exp(2 * value) + 1)
+        except OverflowError:
+            print(value)
+            self.draw()
+            exit(-1)
 
     def _node_output(self, inputs, weights, biases):
         node_output = np.dot(weights, inputs)
@@ -72,42 +75,48 @@ class NeuralNetwork:
     def feedforward(self, inputs):
         """Returns the output of the neural network given an input"""
         hidden_output = self._node_output(inputs, self.weights[0], self.biases[0])
-        for layer in range(1, self.num_hidden_layers - 1):
+        for layer in range(1, self.num_hidden_layers + 1):
             hidden_output = self._node_output(hidden_output, self.weights[layer], self.biases[layer])
-        hidden_output = self._node_output(hidden_output, self.weights[-1], self.biases[-1])
         return hidden_output
 
-    def train(self, inputs, answers):
+    def train(self, inputs, answers, rate):
         # feed forward
         outputs = []
         # get input to hidden output
         outputs.append(self._node_output(inputs, self.weights[0], self.biases[0]))
         # get hidden to hidden / hidden to output
-        for layer in range(1, self.num_hidden_layers - 1):
+        for layer in range(1, self.num_hidden_layers + 1):
             outputs.append(self._node_output(outputs[layer - 1], self.weights[layer], self.biases[layer]))
-        outputs.append(self._node_output(outputs[-1], self.weights[-1], self.biases[-1]))
         # calculate error, gradient, delta, adjust weights, repeat
-
         # hidden <- output
-        # Possible Bug: Not multiplying errors by weights
         errors = np.subtract(answers, outputs[-1])
-        errors = np.multiply(np.transpose(self.weights[-1]), errors)
+        # errors = np.multiply(np.transpose(self.weights[-1]), errors)
         gradients = np.subtract(1, np.power(outputs[-1], 2))
-        gradients = np.multiply(gradients, errors)
-        gradients = np.multiply(gradients, self.learning_rate)
-        deltas = np.multiply(gradients, np.transpose(outputs[-1]))
-        np.add(self.weights[-1], np.transpose(deltas))
-        np.add(self.biases[-1], gradients)
-        for layer in range(self.num_hidden_layers - 2, -1, -1):
-            print(layer)
+        gradients = np.dot(gradients, errors)
+        gradients = np.dot(gradients, rate)
+        deltas = np.dot(gradients, np.transpose(outputs[-2]))
+        self.weights[-1] = self.weights[-1] + deltas
+        self.biases[-1] = self.biases[-1] + gradients
+
+        # hidden <- hidden
+        for layer in range(self.num_hidden_layers - 1, 0, -1):
             # Possible Bug: use output error not hidden layer for all
-            errors = np.multiply(np.transpose(self.weights[layer]), errors)
+            errors = np.dot(np.transpose(self.weights[layer + 1]), errors)
             gradients = np.subtract(1, np.power(outputs[layer], 2))
-            gradients = np.multiply(gradients, errors)
-            gradients = np.multiply(gradients, self.learning_rate)
-            deltas = np.multiply(gradients, np.transpose(outputs[layer]))
-            np.add(self.weights[layer], deltas)
-            np.add(self.biases[layer], gradients)
+            gradients = np.dot(gradients, errors)
+            gradients = np.dot(gradients, rate)
+            deltas = np.dot(gradients, np.transpose(outputs[layer - 1]))
+            self.weights[layer] = self.weights[layer] + deltas
+            self.biases[layer] = self.biases[layer] + gradients
+
+        # input <- hidden
+        errors = np.dot(np.transpose(self.weights[1]), errors)
+        gradients = np.subtract(1, np.power(outputs[0], 2))
+        gradients = np.dot(gradients, errors)
+        gradients = np.dot(gradients, rate)
+        deltas = np.dot(gradients, np.transpose(inputs))
+        self.weights[0] = self.weights[0] + deltas
+        self.biases[0] = self.biases[0] + gradients
 
     # Drawing functions
     def node_pos(self, spacing, type, layer, node):
@@ -174,33 +183,33 @@ class NeuralNetwork:
                 for node in range(self.num_hidden_nodes):
                     pos = h_percentile / (self.num_hidden_nodes + 1)
                     bias = self.biases[layer][node]
-                    color = gg.color_gradient(bias)
+                    color = gg.color_gradient(math.tanh(bias))
                     gg.draw_circle(screen, color, self.node_pos(spacing, 'hidden', layer, node), 5, aa=True)
             for node in range(self.num_output_nodes):
                 pos = h_percentile / (self.num_output_nodes + 1)
                 bias = self.biases[-1][node]
-                color = gg.color_gradient(bias)
+                color = gg.color_gradient(math.tanh(bias))
                 gg.draw_circle(screen, color, self.node_pos(spacing, 'output', 1, node), 5, aa=True)
 
             # Connections
             for inp in range(self.num_input_nodes):
                 for node in range(self.num_hidden_nodes):
                     weight = self.weights[0][node][inp]
-                    color = gg.color_gradient(weight)
+                    color = gg.color_gradient(math.tanh(weight))
                     pygame.draw.aaline(screen, color, self.node_pos(spacing, 'input', 1, inp),
                                        self.node_pos(spacing, 'hidden', 0, node))
             for layer in range(0, self.num_hidden_layers - 1):
                 for node in range(self.num_hidden_nodes):
                     for other in range(self.num_hidden_nodes):
                         weight = self.weights[layer + 1][other][node]
-                        color = gg.color_gradient(weight)
+                        color = gg.color_gradient(math.tanh(weight))
                         pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer, node),
                                            self.node_pos(spacing, 'hidden', layer + 1, other))
             for node in range(self.num_hidden_nodes):
                 for out in range(self.num_output_nodes):
                     layer = self.num_hidden_layers
                     weight = self.weights[layer][out][node]
-                    color = gg.color_gradient(weight)
+                    color = gg.color_gradient(math.tanh(weight))
                     pygame.draw.aaline(screen, color, self.node_pos(spacing, 'hidden', layer - 1, node),
                                        self.node_pos(spacing, 'output', 1, out))
 
@@ -272,8 +281,6 @@ class GeneticNetwork(NeuralNetwork):
 
 
 if __name__ == '__main__':
-    print(NeuralNetwork.tanh(0))
-
     print('Testing Using XOR Problem:')
     xor = NeuralNetwork(input_nodes=2, hidden_nodes=2, hidden_layers=1, output_nodes=1)
     xor.draw()
@@ -295,9 +302,7 @@ if __name__ == '__main__':
 
         for i in range(5000):
             index = random.randint(0, 3)
-            print("Iteration", i, ":", end="\t")
-            print("Input:", inputee[index], "Target:", target[index], end="\t")
-            xor.train(inputee[index], target[index])
+            xor.train(inputee[index], target[index], 0.1)
 
         resolution = 10
         cols = math.floor(width / resolution)
